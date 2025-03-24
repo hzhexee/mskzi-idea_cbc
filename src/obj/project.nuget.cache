@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "cYMV1oIjMwM=",
+  "success": true,
+  "projectFilePath": "C:\\College\\2nd Course, 4th Term\\MSKZI\\Cryptography\\mskzi-idea_cbc\\src\\src.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Alexander\\.nuget\\packages\\bouncycastle.cryptography\\2.5.1\\bouncycastle.cryptography.2.5.1.nupkg.sha512"
+  ],
+  "logs": []
+}
