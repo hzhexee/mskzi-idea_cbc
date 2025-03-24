@@ -59,10 +59,14 @@ class IdeaCbcExample
 
         byte[] outputBytes = new byte[cipher.GetOutputSize(cipherText.Length)];
         int length = cipher.ProcessBytes(cipherText, 0, cipherText.Length, outputBytes, 0);
-        cipher.DoFinal(outputBytes, length);
+        int finalLength = cipher.DoFinal(outputBytes, length);
+        
+        // Создаем новый массив только с фактическими данными
+        byte[] result = new byte[length + finalLength];
+        Array.Copy(outputBytes, 0, result, 0, length + finalLength);
 
-        // Записываем расшифрованные данные в выходной файл
-        File.WriteAllBytes(outputFile, outputBytes);
+        // Записываем только фактические расшифрованные данные
+        File.WriteAllBytes(outputFile, result);
     }
 
     // Пример использования методов шифрования и дешифрования

@@ -15,3 +15,4 @@ C:\College\2nd Course, 4th Term\MSKZI\Cryptography\mskzi-idea_cbc\src\obj\Debug\
 C:\College\2nd Course, 4th Term\MSKZI\Cryptography\mskzi-idea_cbc\src\obj\Debug\net9.0\src.pdb
 C:\College\2nd Course, 4th Term\MSKZI\Cryptography\mskzi-idea_cbc\src\obj\Debug\net9.0\src.genruntimeconfig.cache
 C:\College\2nd Course, 4th Term\MSKZI\Cryptography\mskzi-idea_cbc\src\obj\Debug\net9.0\ref\src.dll
+C:\College\2nd Course, 4th Term\MSKZI\Cryptography\mskzi-idea_cbc\src\obj\Debug\net9.0\src.sourcelink.json
