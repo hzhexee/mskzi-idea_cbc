@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Windows.Forms;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Modes;
@@ -7,84 +8,79 @@ using Org.BouncyCastle.Crypto.Paddings;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
-class IdeaCbcExample
+namespace IdeaCbcApp
 {
-    // Метод для генерации случайного вектора инициализации (IV)
-    private static byte[] GenerateRandomIV()
+    static class Program
     {
-        var random = new SecureRandom();
-        byte[] iv = new byte[8]; // IDEA использует 8-байтовый IV
-        random.NextBytes(iv);
-        return iv;
-    }
-
-    // Метод для шифрования данных
-    public static void EncryptFile(string inputFile, string outputFile, byte[] key)
-    {
-        byte[] inputBytes = File.ReadAllBytes(inputFile);
-        byte[] iv = GenerateRandomIV();
-
-        // Создаем шифровальщик с режимом CBC и добавляем заполнение PKCS7
-        BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CbcBlockCipher(new IdeaEngine()));
-        cipher.Init(true, new ParametersWithIV(new KeyParameter(key), iv));
-
-        byte[] outputBytes = new byte[cipher.GetOutputSize(inputBytes.Length)];
-        int length = cipher.ProcessBytes(inputBytes, 0, inputBytes.Length, outputBytes, 0);
-        cipher.DoFinal(outputBytes, length);
-
-        // Записываем IV и зашифрованные данные в выходной файл
-        using (var outputStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write))
+        [STAThread]
+        static void Main()
         {
-            outputStream.Write(iv, 0, iv.Length);
-            outputStream.Write(outputBytes, 0, outputBytes.Length);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new MainForm());
         }
     }
 
-    // Метод для дешифрования данных
-    public static void DecryptFile(string inputFile, string outputFile, byte[] key)
+    class IdeaCbcExample
     {
-        byte[] inputBytes = File.ReadAllBytes(inputFile);
+        // Метод для генерации случайного вектора инициализации (IV)
+        private static byte[] GenerateRandomIV()
+        {
+            var random = new SecureRandom();
+            byte[] iv = new byte[8]; // IDEA использует 8-байтовый IV
+            random.NextBytes(iv);
+            return iv;
+        }
 
-        // Извлекаем IV из входного файла
-        byte[] iv = new byte[8];
-        Array.Copy(inputBytes, 0, iv, 0, iv.Length);
+        // Метод для шифрования данных
+        public static void EncryptFile(string inputFile, string outputFile, byte[] key)
+        {
+            byte[] inputBytes = File.ReadAllBytes(inputFile);
+            byte[] iv = GenerateRandomIV();
 
-        // Извлекаем зашифрованные данные
-        byte[] cipherText = new byte[inputBytes.Length - iv.Length];
-        Array.Copy(inputBytes, iv.Length, cipherText, 0, cipherText.Length);
+            // Создаем шифровальщик с режимом CBC и добавляем заполнение PKCS7
+            BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CbcBlockCipher(new IdeaEngine()));
+            cipher.Init(true, new ParametersWithIV(new KeyParameter(key), iv));
 
-        // Создаем дешифровальщик с режимом CBC и добавляем заполнение PKCS7
-        BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CbcBlockCipher(new IdeaEngine()));
-        cipher.Init(false, new ParametersWithIV(new KeyParameter(key), iv));
+            byte[] outputBytes = new byte[cipher.GetOutputSize(inputBytes.Length)];
+            int length = cipher.ProcessBytes(inputBytes, 0, inputBytes.Length, outputBytes, 0);
+            cipher.DoFinal(outputBytes, length);
 
-        byte[] outputBytes = new byte[cipher.GetOutputSize(cipherText.Length)];
-        int length = cipher.ProcessBytes(cipherText, 0, cipherText.Length, outputBytes, 0);
-        int finalLength = cipher.DoFinal(outputBytes, length);
-        
-        // Создаем новый массив только с фактическими данными
-        byte[] result = new byte[length + finalLength];
-        Array.Copy(outputBytes, 0, result, 0, length + finalLength);
+            // Записываем IV и зашифрованные данные в выходной файл
+            using (var outputStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write))
+            {
+                outputStream.Write(iv, 0, iv.Length);
+                outputStream.Write(outputBytes, 0, outputBytes.Length);
+            }
+        }
 
-        // Записываем только фактические расшифрованные данные
-        File.WriteAllBytes(outputFile, result);
-    }
+        // Метод для дешифрования данных
+        public static void DecryptFile(string inputFile, string outputFile, byte[] key)
+        {
+            byte[] inputBytes = File.ReadAllBytes(inputFile);
 
-    // Пример использования методов шифрования и дешифрования
-    static void Main()
-    {
-        string inputFile = "input.txt";
-        string encryptedFile = "encrypted.dat";
-        string decryptedFile = "decrypted.txt";
+            // Извлекаем IV из входного файла
+            byte[] iv = new byte[8];
+            Array.Copy(inputBytes, 0, iv, 0, iv.Length);
 
-        // 16-байтовый (128-битный) ключ для IDEA
-        byte[] key = System.Text.Encoding.UTF8.GetBytes("1234567890abcdef");
+            // Извлекаем зашифрованные данные
+            byte[] cipherText = new byte[inputBytes.Length - iv.Length];
+            Array.Copy(inputBytes, iv.Length, cipherText, 0, cipherText.Length);
 
-        // Шифруем файл
-        EncryptFile(inputFile, encryptedFile, key);
-        Console.WriteLine("Файл успешно зашифрован.");
+            // Создаем дешифровальщик с режимом CBC и добавляем заполнение PKCS7
+            BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CbcBlockCipher(new IdeaEngine()));
+            cipher.Init(false, new ParametersWithIV(new KeyParameter(key), iv));
 
-        // Дешифруем файл
-        DecryptFile(encryptedFile, decryptedFile, key);
-        Console.WriteLine("Файл успешно расшифрован.");
+            byte[] outputBytes = new byte[cipher.GetOutputSize(cipherText.Length)];
+            int length = cipher.ProcessBytes(cipherText, 0, cipherText.Length, outputBytes, 0);
+            int finalLength = cipher.DoFinal(outputBytes, length);
+            
+            // Создаем новый массив только с фактическими данными
+            byte[] result = new byte[length + finalLength];
+            Array.Copy(outputBytes, 0, result, 0, length + finalLength);
+
+            // Записываем только фактические расшифрованные данные
+            File.WriteAllBytes(outputFile, result);
+        }
     }
 }
